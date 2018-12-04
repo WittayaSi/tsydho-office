@@ -22,7 +22,8 @@ class CustomerApiController extends Controller
         //$end_date = request('end_date');
         //return request('car_id');
         $check_car = CarUse::where('settingcar_id', request('car_id'))
-                            ->where('task_id', '<>', request('task_id'))->get();
+                            ->where('task_id', '<>', request('task_id'))
+                            ->orWhere('task_id', "NULL")->get();
        //return $check_car;
         if(count($check_car) > 0){
             foreach($check_car as $c){
