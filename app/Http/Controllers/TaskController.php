@@ -147,6 +147,11 @@ class TaskController extends Controller
                     $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
                         + ['task_id' => $task->id]
                     );
+                }else{
+                    unset($attribute['task']);
+                    CarUse::create($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
+                        + ['task_id' => $task->id]
+                    );
                 }
                 
                 DB::commit();
