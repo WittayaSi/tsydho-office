@@ -136,38 +136,28 @@ class TaskController extends Controller
         $car_id = request('settingcar_id');
         $start_date = request('start_date');
         $end_date = request('end_date');
-        $check_car = CarUse::where('settingcar_id', $car_id)
-                            ->where('id', '<>', $task->id)->get();
-        if($check_car){
-            foreach($check_car as $c){
-                if( (
-                        $c->start_date >= $start_date  && $c->start_date <= $end_date) || 
-                        ($c->end_date >= $start_date && $c->end_date <= $end_date) 
-                    ){
-                    return back()->withErrors([
-                        'update_errors' => $c->settingcar->carname." ระหว่างวันที่ ".$c->start_date." ถึง ".$c->end_date." มีคนใช้แล้ว!!!"
-                    ])->withInput($attribute + ['user_id' => request('user_id')]);
+
+        if($car_id != null){
+            try{
+                DB::beginTransaction();
+                $task->update($attribute  + ['user_id' => auth()->id()] + ['settingcar_id' => $car_id]);
+                $caruse = CarUse::findOrfail($task->id);
+                if($caruse){
+                    unset($attribute['task']);
+                    $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
+                        + ['task_id' => $task->id]
+                    );
                 }
+                
+                DB::commit();
+            }catch(\Exception $e){
+                DB::rollback();
+                return back()->withErrors( [ 
+                    'update_errors' =>  'มีปัญหาเรื่องการบันทึกข้อมุล ' . $e
+                ] )->withInput($attribute + ['task' => request('task')] + ['settingcar_id' => $car_id]);
             }
-        }
-        
-        try{
-            DB::beginTransaction();
-            $task->update($attribute  + ['user_id' => auth()->id()] + ['settingcar_id' => $car_id]);
-            $caruse = CarUse::findOrfail($task->id);
-            if($caruse){
-                unset($attribute['task']);
-                $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
-                    + ['task_id' => $task->id]
-                );
-            }
-            
-            DB::commit();
-        }catch(\Exception $e){
-            DB::rollback();
-            return back()->withErrors( [ 
-                'update_errors' =>  'มีปัญหาเรื่องการบันทึกข้อมุล ' . $e
-            ] )->withInput($attribute + ['task' => request('task')] + ['settingcar_id' => $car_id]);
+        }else{
+            $task->update($attribute  + ['user_id' => auth()->id()]);
         }
         
         
