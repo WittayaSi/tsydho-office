@@ -229,6 +229,8 @@ $('#detailTask').on('hidden.bs.modal', function(){
     edit_form_confirm.style.display = 'none';
     edit_form.style.display = '';
     edit_car_form.style.display = "none";
+    document.querySelector("#message-error-edit-form").innerHTML ="";
+    document.querySelector("#check-car-error-edit-form").style.display = "none";
 
 });
 let enableForm = (input)=>{
