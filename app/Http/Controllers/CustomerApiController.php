@@ -23,7 +23,7 @@ class CustomerApiController extends Controller
         //return request('car_id');
         $check_car = CarUse::where('settingcar_id', request('car_id'))
                             ->where('task_id', '<>', request('task_id'))
-                            ->orWhere('task_id', "NULL")->get();
+                            ->orWhere('task_id', '=', null)->get();
        //return $check_car;
         if(count($check_car) > 0){
             foreach($check_car as $c){
