@@ -150,10 +150,11 @@ class TaskController extends Controller
                 }
             }
         }
-        $caruse = CarUse::findOrfail($task->id);
+        
         try{
             DB::beginTransaction();
-            $task->update($attribute);
+            $task->update($attribute  + ['user_id' => auth()->id()] + ['settingcar_id' => $car_id]);
+            $caruse = CarUse::findOrfail($task->id);
             if($caruse){
                 unset($attribute['task']);
                 $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
