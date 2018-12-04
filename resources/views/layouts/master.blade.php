@@ -34,7 +34,7 @@
 		@include('layouts.navbar')
 	@endif
 	
-	<div class="container"  style="margin-top: 5rem;">
+	<div class="container"  style="margin-top: 7rem;">
 		@yield('content')
 	</div>
 	<script src="{{ asset('js/axios/axios.min.js') }}"></script>
