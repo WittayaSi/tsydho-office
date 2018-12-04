@@ -60,8 +60,9 @@ class SettingCarController extends Controller
     }
 
     
-    public function destroy(SettingCar $settingCar)
+    public function destroy(SettingCar $car)
     {
-        //
+        $car->delete();
+        return back();
     }
 }

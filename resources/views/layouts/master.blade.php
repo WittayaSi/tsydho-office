@@ -38,7 +38,7 @@
 		@yield('content')
 	</div>
 	<script src="{{ asset('js/axios/axios.min.js') }}"></script>
-	<script src="{{ asset('js/vuejs/vue.js') }}"></script>
+	{{-- <script src="{{ asset('js/vuejs/vue.js') }}"></script> --}}
 	@stack('scripts')
 </body>
 </html>

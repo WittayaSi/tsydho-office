@@ -132,7 +132,7 @@ option,
 		@if ($errors->any())
 			@if($errors->has('store_errors'))
 				$('#addCarUse').modal('show');
-				console.log({{ old('settingcar_id') }})
+				document.querySelector('#end_date').disabled = false;
 			@endif
 			@if($errors->has('update_errors'))
 				//setFormEn();

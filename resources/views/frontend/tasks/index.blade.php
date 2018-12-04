@@ -18,7 +18,7 @@
 
 	@include('frontend.tasks.add_task_modal')
 	@include('frontend.tasks.detail_task_modal')
-	@include('layouts.errors')
+	{{-- @include('layouts.errors') --}}
 	
 	<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#addTask" 
 		style="position: absolute; z-index: 2; margin-top: -1rem;">
@@ -105,12 +105,17 @@
 @push('scripts')
 <script type="text/javascript">
 	@if ($errors->any())
-		@foreach($errors->all() as $key=>$error)
-			@if($key != 'admin_errors')
-	    		$('#addTask').modal('show');
-	    	@endif
-	    @endforeach
-	@endif
+			@if($errors->has('store_errors'))
+				$('#addTask').modal('show');
+				document.querySelector('#settingcar_id').value = {{ old('settingcar_id') }};
+				document.querySelector('.add-car-form').style.display = "";
+			@endif
+			@if($errors->has('update_errors'))
+				//setFormEn();
+				$('#detailTask').modal('show');
+				document.querySelector('#form-detail').action =  "{{ session('uri') }}"
+			@endif
+		@endif
 </script>
 
 <script src="{{ asset('js/task-index.js') }}"></script>

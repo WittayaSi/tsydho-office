@@ -16,6 +16,8 @@ Route::get('/', function () {
 });
 Auth::routes();
 Route::resource('/frontend/tasks', 'TaskController');
+
+
 Route::resource('/frontend/car-uses', 'CarUseController');
 Route::resource('/backend/setting/users', 'UserController');
 Route::resource('/backend/setting/cars', 'SettingCarController');
@@ -23,5 +25,6 @@ Route::resource('/backend/setting/cars', 'SettingCarController');
 Route::get('/backend', 'SettingController@index')->name('admin');
 
 Route::get('/customer-api/get-all-cars', 'CustomerApiController@getAllCars');
+Route::post('/customer-api/check-car', 'CustomerApiController@checkCar');
 
 

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Task;
+use App\SettingCar;
+use App\CarUse;
 use Illuminate\Http\Request;
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -17,6 +20,7 @@ class TaskController extends Controller
     {
         $events = [];
         $tasks = Task::all();
+        $data['settingcars'] = SettingCar::where('status', 'active')->get();
         $data['yes_tasks'] = Task::where('start_date', '<=',date('Y-m-d', strtotime('-1 day')))->where('end_date', '>=', date('Y-m-d', strtotime('-1 day')))->get();
         $data['today_tasks'] = Task::where('start_date', '<=', date('Y-m-d'))->where('end_date', '>=', date('Y-m-d'))->get();
         $data['tom_tasks'] = Task::where('start_date', '<=',date('Y-m-d', strtotime('+1 day')))->where('end_date', '>=', date('Y-m-d', strtotime('+1 day')))->get();
@@ -32,7 +36,8 @@ class TaskController extends Controller
                 [
                     'color' => $task->user->color_code,
                     'description' => $task->description,
-                    'user_id' => $task->user_id
+                    'user_id' => $task->user_id,
+                    'settingcar_id' => $task->settingcar_id
                 ]
             );
         }
@@ -64,22 +69,41 @@ class TaskController extends Controller
 
     public function store()
     {
-        //dd(request()->all());
-        //$daterange = explode(" - ", request('daterange'));
-        //dd($daterange);
-        //$start_date = date('Y-m-d', strtotime($daterange[0]));
-        //$end_date = date('Y-m-d', strtotime($daterange[1]));
-        ///dd($start_date,$end_date);
-
-        // validate input 
         $attribute = request()->validate([
             'task' => 'required|min:5|max:100',
             'description' => 'required|min:5|max:500',
             'start_date' => 'required',
             'end_date' => 'required',
         ]);
-        // save to database
-        Task::create($attribute + ['user_id' => auth()->id()]);
+        //validate car is already used
+        $car_id = request('settingcar_id');
+        $start_date = request('start_date');
+        $end_date = request('end_date');
+
+       //unset($attribute['task']);
+        //dd( $attribute );
+        
+        if($car_id != null){
+            // save to database
+            try{
+                DB::beginTransaction();
+                $task = Task::create($attribute + ['user_id' => auth()->id()] + ['settingcar_id' => $car_id]);
+                unset($attribute['task']);
+                CarUse::create($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
+                    + ['task_id' => $task->id]
+                );
+                DB::commit();
+            }catch(\Exception $e){
+                DB::rollback();
+                return back()->withErrors( [ 
+                    'store_errors' =>  'มีปัญหาเรื่องการบันทึกข้อมุล ' . $e
+                ] )->withInput($attribute + ['task' => request('task')] + ['settingcar_id' => $car_id]);
+            }
+            
+        }else{
+            // save to database
+            Task::create($attribute + ['user_id' => auth()->id()]);
+        }
         return redirect('/frontend/tasks');
     }
 
@@ -97,23 +121,58 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-        dd($task, request()->all());
+        //dd($task, request()->all());
         $attribute = request()->validate([
             'task' => 'required|min:5|max:100',
             'description' => 'required|min:5|max:500',
             'start_date' => 'required',
             'end_date' => 'required',
         ]);
-        $task->update($attribute);
+
+        //push uri to session
+        session(['uri' => $request->getRequestUri()]);
+
+        //validate car is already used
+        $car_id = request('settingcar_id');
+        $start_date = request('start_date');
+        $end_date = request('end_date');
+        $check_car = CarUse::where('settingcar_id', $car_id)
+                            ->where('id', '<>', $task->id)->get();
+        if($check_car){
+            foreach($check_car as $c){
+                if( (
+                        $c->start_date >= $start_date  && $c->start_date <= $end_date) || 
+                        ($c->end_date >= $start_date && $c->end_date <= $end_date) 
+                    ){
+                    return back()->withErrors([
+                        'update_errors' => $c->settingcar->carname." ระหว่างวันที่ ".$c->start_date." ถึง ".$c->end_date." มีคนใช้แล้ว!!!"
+                    ])->withInput($attribute + ['user_id' => request('user_id')]);
+                }
+            }
+        }
+        $caruse = CarUse::findOrfail($task->id);
+        try{
+            DB::beginTransaction();
+            $task->update($attribute);
+            if($caruse){
+                unset($attribute['task']);
+                $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
+                    + ['task_id' => $task->id]
+                );
+            }
+            
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollback();
+            return back()->withErrors( [ 
+                'update_errors' =>  'มีปัญหาเรื่องการบันทึกข้อมุล ' . $e
+            ] )->withInput($attribute + ['task' => request('task')] + ['settingcar_id' => $car_id]);
+        }
+        
+        
         return redirect('/frontend/tasks');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Task  $task
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Task $task)
     {
         //dd('delete');

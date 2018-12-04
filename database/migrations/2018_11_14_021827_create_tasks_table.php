@@ -16,6 +16,7 @@ class CreateTasksTable extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('settingcar_id')->nullable();
             $table->string('task');
             $table->text('description');
             $table->date('start_date');
@@ -23,6 +24,7 @@ class CreateTasksTable extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('settingcar_id')->references('id')->on('setting_cars')->onDelete('cascade');
         });
     }
 

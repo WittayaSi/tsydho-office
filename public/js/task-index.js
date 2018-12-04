@@ -12,11 +12,13 @@ let onClickEvent = (event, from) => {
     document.querySelector("#form-detail").action = "/frontend/tasks/" + event.id
     document.querySelector("#delete-form").action = "/frontend/tasks/" + event.id
     document.querySelector("#user_id").value = event.user_id
+    document.querySelector("#task_id").value = event.id
     document.querySelector("#task-s").value = (from === 'controller') ? event.title : event.task;
     document.querySelector("#description-s").value = event.description
     document.querySelector("#start_date_s").value = new_start_date
     document.querySelector("#end_date_s").value =  new_end_date
     document.querySelector("#end_date_s").min = new_start_date
+    document.querySelector("#settingcar_id_s").value = event.settingcar_id
     $("#detailTask").modal();
 }
 

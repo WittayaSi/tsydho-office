@@ -1,6 +1,6 @@
 let confirmCarDelete = (car)=>{
 	document.getElementById('delete-car-form').action = "/backend/setting/cars/" + car.id
-	let c = confirm('คุณแน่ใจว่าต้องการลบข้อมูล : ' + car.name);
+	let c = confirm('คุณแน่ใจว่าต้องการลบข้อมูล : ' + car.carname);
     if(c){
         event.preventDefault();
         document.getElementById('delete-car-form').submit();

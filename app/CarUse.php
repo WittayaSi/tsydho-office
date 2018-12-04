@@ -19,4 +19,9 @@ class CarUse extends Model
     {
     	return $this->belongsTo(SettingCar::class);
     }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class);
+    }
 }

@@ -73,6 +73,8 @@ option,
                                         document.querySelector('#end_date').min = this.value;
                                         document.querySelector('#end_date').value = this.value;
                                         document.querySelector('#end_date').disabled = false;
+                                        document.querySelector('#settingcar_id').disabled = false;
+                                        document.querySelector('#settingcar_id').value = '';
                                     "
                                 >
                             </div>
@@ -84,29 +86,100 @@ option,
                                     value="{{ old('end_date') }}" 
                                     required
                                     disabled
-                                    {{-- 
                                     onchange="
-                                        document.querySelector('#start_date').value = this.value;
-                                    " --}}
+                                        document.querySelector('#settingcar_id').value = '';
+                                    "
                                 >
                             </div>
                         </div>
                     </div>
+
+                    
+                    <button type="button" class="btn btn-primary btn-sm add-car-button" style="margin-top: 20px;"
+                        onclick="addCarForm();" 
+                    >มีการใช้รถยนต์</button>
+
+                    <div class="form-row add-car-form" style="display: none;">
+                        <div class="col-md-6">
+                                <label for="settingcar_id" class="small-label">ทะเบียน</label>
+                                <select class="form-control form-control-sm" name="settingcar_id" id="settingcar_id"
+                                    onchange="checkCarIsAlready(this)"
+                                    disabled 
+                                >
+                                    <option value="">เลือกรถยนต์</option>
+                                    @foreach($data['settingcars'] as $car)
+                                        <option value="{{ $car->id }}"
+                                            {{ old('settingcar_id') == $car->id ? 'selected' : '' }}
+                                        >
+                                            {{ $car->carname }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                    </div>
                 </div>
+
                 @include('frontend.tasks.errors')
+
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary btn-sm"><i class="far fa-save"></i> เพิ่ม</button>
                     <button type="reset" class="btn btn-warning btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> ปิด</button>
                 </div>
             </form>
+
+            {{-- <form id="check-car-form" method="POST" style="display: none;">
+                @csrf
+                <input type="hidden" name="check_start_date" id="check_start_date">
+                <input type="hidden" name="check_end_date" id="check_end_date">
+            </form> --}}
         </div>
     </div>
 </div>
 <script type="text/javascript">
 
+let checkCarIsAlready = (selected)=>{
+    let start = document.querySelector('#start_date').value;
+    let end = document.querySelector('#end_date').value;
+    console.log(start, end, selected.value)
+    axios.post('/customer-api/check-car',{
+            car_id: selected.value,
+            start_date: start,
+            end_date: end
+        }).then((res)=>{
+            console.log(res.data);
+        if(res.data.status === 'err'){
+            document.querySelector("#check-car-error").style.display = "";
+            document.querySelector("#settingcar_id").value = "";
+            document.querySelector("#message-error").innerHTML = res.data.message;
+        }else{
+            document.querySelector("#message-error").innerHTML ="";
+            document.querySelector("#check-car-error").style.display = "none";
+        }
+    }).catch((err)=>{
+        console.log(err);
+    })
+    // event.preventDefault();
+    // document.querySelector('#check_start_date').value = start;
+    // document.querySelector('#check_end_date').value = end;
+    // document.getElementById('check-car-form').action = '/frontend/tasks/check-car/' + selected.value;
+    // document.getElementById('check-car-form').submit();
+
+}
+
 $('#addTask').on('hidden.bs.modal', function(){
     $(this).find('form')[0].reset();
 });
+
+let addCarForm = ()=>{
+    let div = document.querySelector('.add-car-form');
+    let car_selector = document.querySelector('#settingcar_id');
+    if(div.style.display === "none"){
+        div.style.display = "block";
+    }else{
+        car_selector.value ="";
+        div.style.display = "none";
+    }
+}
 
 (
     function() {

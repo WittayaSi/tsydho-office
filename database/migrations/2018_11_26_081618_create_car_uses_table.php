@@ -17,6 +17,7 @@ class CreateCarUsesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('settingcar_id');
+            $table->unsignedInteger('task_id')->nullable();
             $table->string('title');
             $table->text('description');
             $table->date('start_date');
@@ -25,6 +26,7 @@ class CreateCarUsesTable extends Migration
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('settingcar_id')->references('id')->on('setting_cars')->onDelete('cascade');
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
         });
     }
 

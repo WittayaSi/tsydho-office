@@ -85,6 +85,7 @@
                             </div>
                         </div>
                         <input type="hidden" id="user_id" name="user_id" value={{ old('user_id') }}>
+                        <input type="hidden" id="task_id">
                     </div>
                     @include('frontend.car-uses.errors')
                     <div class="modal-footer">
@@ -153,7 +154,8 @@ let adminOrOwner = ()=>{
     let auth_id = {{ auth()->id() }};
     let admin = '{{ auth()->user()->user_role }}';
     let user_id = document.querySelector("#user_id").value;
-    (auth_id == user_id) || (admin == 'admin') ? owner_group.style.display = '' : owner_group.style.display = 'none';
+    let task_id = document.querySelector("#task_id").value;
+    task_id == "" ? ((auth_id == user_id) || (admin == 'admin' ) ? owner_group.style.display = '' : owner_group.style.display = 'none') : owner_group.style.display = 'none';
 }
 
 $('#detailCarUse').on('hidden.bs.modal', function(){

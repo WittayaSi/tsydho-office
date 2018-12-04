@@ -105,7 +105,7 @@
 
 $(function () {
     $('#color_code').colorpicker({
-        format: 'auto'
+        format: 'hex'
     });
 });
 

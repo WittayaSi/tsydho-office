@@ -37,7 +37,8 @@ class CarUseController extends Controller
                     'con_title' => $car->title,
                     'user_id' => $car->user_id,
                     'user_name' => $car->user->name,
-                    'settingcar_id' => $car->settingcar_id
+                    'settingcar_id' => $car->settingcar_id,
+                    'task_id' => $car->task_id
                 ]
             );
         }
@@ -50,7 +51,8 @@ class CarUseController extends Controller
                 'center' => 'title',
                 'right' => 'month,agendaWeek,agendaDay,listMonth'
                 //'right' => 'month,agendaWeek,agendaDay,listMonth'
-            ]
+            ],
+            'eventTextColor' => '#FFFFFF'
         ]);
 
         $calendar->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
@@ -81,10 +83,11 @@ class CarUseController extends Controller
         $start_date = request('start_date');
         $end_date = request('end_date');
         $check_car = CarUse::where('settingcar_id', $car_id)->get();
-        if($check_car){
+
+        if( count($check_car) > 0 ){
             foreach($check_car as $c){
                 if( (
-                        $c->start_date >= $start_date  && $c->start_date <= $start_date) || 
+                        $c->start_date >= $start_date  && $c->start_date <= $end_date) || 
                         ($c->end_date >= $start_date && $c->end_date <= $end_date) 
                     ){
                     return back()->withErrors( [ 
@@ -94,7 +97,8 @@ class CarUseController extends Controller
             }
         }
         //create new car use
-        CarUse::create($attribute + ['user_id' => auth()->id()]);
+        $caruse = CarUse::create($attribute + ['user_id' => auth()->id()]);
+        //dd($caruse);
         return redirect('/frontend/car-uses');
     }
 
@@ -121,7 +125,7 @@ class CarUseController extends Controller
         if($check_car){
             foreach($check_car as $c){
                 if( (
-                        $c->start_date >= $start_date  && $c->start_date <= $start_date) || 
+                        $c->start_date >= $start_date  && $c->start_date <= $end_date) || 
                         ($c->end_date >= $start_date && $c->end_date <= $end_date) 
                     ){
                     return back()->withErrors([

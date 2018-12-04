@@ -12,6 +12,7 @@ let onClickEvent = (event, from) => {
     document.querySelector("#editCarUseForm").action = "/frontend/car-uses/" + event.id
     document.querySelector("#delete-car-use-form").action = "/frontend/car-uses/" + event.id
     document.querySelector("#settingcar_id_e").value = event.settingcar_id
+    document.querySelector("#task_id").value = event.task_id
     document.querySelector("#user_id").value = event.user_id
     document.querySelector("#title_e").value = (from === 'controller') ? event.con_title : event.title;
     document.querySelector("#description_e").value = event.description

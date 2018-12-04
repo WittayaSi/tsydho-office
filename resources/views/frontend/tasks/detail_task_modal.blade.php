@@ -78,6 +78,7 @@ option,
                                     onchange="
                                         document.querySelector('#end_date_s').min = this.value;
                                         document.querySelector('#end_date_s').value = this.value;
+                                        document.querySelector('#settingcar_id_s').value = '';
                                     "
                                 >
                             </div>
@@ -90,14 +91,51 @@ option,
                                     required
                                     disabled
                                     onchange="
-                                        document.querySelector('#start_date_s').value = this.value;
+                                        document.querySelector('#settingcar_id_s').value = '';
                                     "
                                 >
                             </div>
                         </div>
                     </div>
                     <input type="hidden" id="user_id">
+                    <input type="hidden" id="task_id" name="task_id">
+
+                    <button type="button" class="btn btn-primary btn-sm edit-car-button" style="margin-top: 20px;"
+                        onclick="editCarForm();" 
+                        id="edit-car-button"
+                        disabled
+                    >มีการใช้รถยนต์</button>
+
+                    <div class="form-row edit-car-form" id="edit-car-form" style="display: none;">
+                        <div class="col-md-6">
+                                <label for="settingcar_id_s" class="small-label">ทะเบียน</label>
+                                <select class="form-control form-control-sm" name="settingcar_id" id="settingcar_id_s"
+                                    onchange="checkCarIsAlreadyEditForm(this)"
+                                    disabled 
+                                >
+                                    <option value="">เลือกรถยนต์</option>
+                                    @foreach($data['settingcars'] as $car)
+                                        <option value="{{ $car->id }}"
+                                        >
+                                            {{ $car->carname }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                    </div>
                 </div>
+
+                {{-- error block --}}
+                <div id="check-car-error-edit-form" style="display: none">
+                    <div class="alert alert-danger">
+                        <ul>
+                                <li id="message-error-edit-form">
+                                </li>
+                        </ul>
+                    </div>
+                </div>
+                {{-- error block --}}
+
                 <div class="modal-footer">
                     <div id="owner_group" style="display: none;" class="text-left">
                         <button type="submit" class="btn btn-success btn-sm" id="edit-form-confirm" style="display: none;"><i class="far fa-save"></i> ยืนยันแก้ไข</button>
@@ -125,6 +163,40 @@ let end_date_s = document.querySelector('#end_date_s');
 let owner_group = document.querySelector('#owner_group');
 let edit_form_confirm = document.querySelector('#edit-form-confirm');
 let edit_form = document.querySelector('#edit-form');
+let edit_car_button = document.querySelector('#edit-car-button');
+let settingcar_id_s = document.querySelector('#settingcar_id_s');
+let edit_car_form = document.querySelector("#edit-car-form");
+let error_edit_form = document.querySelector("#error-edit-form");
+
+
+let checkCarIsAlreadyEditForm = (selected)=>{
+    //let start = document.querySelector('#start_date').value;
+    //let end = document.querySelector('#end_date').value;
+    axios.post('/customer-api/check-car',{
+            car_id: selected.value,
+            start_date: start_date_s.value,
+            end_date: end_date_s.value,
+            task_id: document.querySelector('#task_id').value
+        }).then((res)=>{
+            console.log(res.data)
+        if(res.data.status === 'err'){
+            document.querySelector("#check-car-error-edit-form").style.display = "";
+            document.querySelector("#settingcar_id_s").value = "";
+            document.querySelector("#message-error-edit-form").innerHTML = res.data.message;
+        }else{
+            document.querySelector("#message-error-edit-form").innerHTML ="";
+            document.querySelector("#check-car-error-edit-form").style.display = "none";
+        }
+    }).catch((err)=>{
+        console.log(err);
+    })
+    // event.preventDefault();
+    // document.querySelector('#check_start_date').value = start;
+    // document.querySelector('#check_end_date').value = end;
+    // document.getElementById('check-car-form').action = '/frontend/tasks/check-car/' + selected.value;
+    // document.getElementById('check-car-form').submit();
+
+}
 
 let confirmDelete = ()=>{
     let c = confirm('คุณแน่ใจว่าต้องการลบข้อมูลนี้!!!');
@@ -136,31 +208,50 @@ let confirmDelete = ()=>{
     }
 }
 
+let editCarForm = ()=>{
+    if(edit_car_form.style.display === "none"){
+        edit_car_form.style.display = "block";
+    }else{
+        settingcar_id_s.value ="";
+        edit_car_form.style.display = "none";
+    }
+}
+
 $('#detailTask').on('hidden.bs.modal', function(){
     //location.reload();
     task_s.disabled = !false;
     description_s.disabled = !false;
     start_date_s.disabled = !false;
     end_date_s.disabled = !false;
+    edit_car_button.disabled = !false;
+    settingcar_id_s.disabled = !false;
     owner_group.style.display = 'none';
     edit_form_confirm.style.display = 'none';
     edit_form.style.display = '';
+
 });
 let enableForm = (input)=>{
     task_s.disabled = false;
     description_s.disabled = false;
     start_date_s.disabled = false;
     end_date_s.disabled = false;
+    edit_car_button.disabled = false;
+    settingcar_id_s.disabled = false;
     edit_form.style.display = 'none';
     edit_form_confirm.style.display = '';
 }
 
 $('#detailTask').on('shown.bs.modal', ()=>{
     //console.log('{{ auth()->user()->user_role }}');
+    console.log(settingcar_id_s.value);
+    
     let auth_id = {{ auth()->id() }};
     let admin = '{{ auth()->user()->user_role }}';
     let user_id = document.querySelector("#user_id").value;
     (auth_id == user_id) || (admin == 'admin') ? owner_group.style.display = '' : owner_group.style.display = 'none';
+    if(settingcar_id_s.value != ""){
+        edit_car_form.style.display = ""
+    }
 
 })
 
