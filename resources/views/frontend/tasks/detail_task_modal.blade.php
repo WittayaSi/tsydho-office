@@ -228,6 +228,7 @@ $('#detailTask').on('hidden.bs.modal', function(){
     owner_group.style.display = 'none';
     edit_form_confirm.style.display = 'none';
     edit_form.style.display = '';
+    edit_car_form.style.display = "none";
 
 });
 let enableForm = (input)=>{
@@ -239,6 +240,7 @@ let enableForm = (input)=>{
     settingcar_id_s.disabled = false;
     edit_form.style.display = 'none';
     edit_form_confirm.style.display = '';
+
 }
 
 $('#detailTask').on('shown.bs.modal', ()=>{
