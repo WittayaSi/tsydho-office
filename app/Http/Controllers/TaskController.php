@@ -143,12 +143,14 @@ class TaskController extends Controller
                 $task->update($attribute  + ['user_id' => auth()->id()] + ['settingcar_id' => $car_id]);
 
                 $caruse = CarUse::where('task_id', $task->id)->get();
-                
+
                 if(count($caruse) > 0){
                     unset($attribute['task']);
-                    $caruse->update($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
-                        + ['task_id' => $task->id]
-                    );
+                    CarUse::where('task_id', $task->id)
+                            ->update(
+                                $attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
+                                + ['task_id' => $task->id]
+                            );
                 }else{
                     unset($attribute['task']);
                     CarUse::create($attribute + ['user_id' => auth()->id()] + ['title' => request('task')] + ['settingcar_id' => $car_id] 
