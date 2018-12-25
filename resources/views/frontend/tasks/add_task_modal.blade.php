@@ -122,7 +122,7 @@ option,
                 @include('frontend.tasks.errors')
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="far fa-save"></i> เพิ่ม</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="addTaskBT"><i class="far fa-save"></i> เพิ่ม</button>
                     <button type="reset" class="btn btn-warning btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> ปิด</button>
                 </div>
             </form>
@@ -151,9 +151,11 @@ let checkCarIsAlready = (selected)=>{
             document.querySelector("#check-car-error").style.display = "";
             document.querySelector("#settingcar_id").value = "";
             document.querySelector("#message-error").innerHTML = res.data.message;
+            document.querySelector("#addTaskBT").disabled = true
         }else{
             document.querySelector("#message-error").innerHTML ="";
             document.querySelector("#check-car-error").style.display = "none";
+            document.querySelector("#addTaskBT").disabled = false
         }
     }).catch((err)=>{
         console.log(err);
