@@ -39,7 +39,7 @@ option,
                             <label for="task" class="small-label">เรื่อง</label>
                             <input type="text" class="form-control form-control-sm" name="task" id="task" placeholder="เรื่อง" 
                                 value="{{ old('task') }}"
-                                pattern="[ a-zA-Z0-9\u0E00-\u0E7F]{2,100}"
+                                pattern="[ ^ ]{2,100}"
                                 required 
                             >
                             <div class="invalid-tooltip small-tooltip">
